@@ -225,10 +225,3 @@ public class PlayerFollowTouch : MonoBehaviour
         transform.localScale = originalScale;
     }
 }
-
-
-
-
-
-
-
