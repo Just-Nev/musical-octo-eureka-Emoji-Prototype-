@@ -36,17 +36,17 @@ public class PlayerFollowTouch : MonoBehaviour
     private Animator scoreAnimator;
     private Animator totalScoreAnimator;
 
+    // Finger mode
+    private bool fingerMode = false;
+
     void Start()
     {
-        // Get the SpriteRenderer component
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
             Debug.LogError("Missing SpriteRenderer on Player!");
 
-        // Store the original scale for squash/stretch animation
         originalScale = transform.localScale;
 
-        // Get the animator for total score text and set it to unscaled time (not affected by timeScale)
         if (totalScoreText != null)
         {
             totalScoreAnimator = totalScoreText.GetComponent<Animator>();
@@ -54,7 +54,6 @@ public class PlayerFollowTouch : MonoBehaviour
                 totalScoreAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
         }
 
-        // Get the animator for score text
         if (scoreText != null)
         {
             scoreAnimator = scoreText.GetComponent<Animator>();
@@ -62,7 +61,6 @@ public class PlayerFollowTouch : MonoBehaviour
                 scoreAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
         }
 
-        // Set initial score display
         UpdateScoreUI();
     }
 
@@ -70,19 +68,26 @@ public class PlayerFollowTouch : MonoBehaviour
     {
         HandleInput();
 
-        // Move player toward the touch position if allowed
-        if (isTouching && !stopMovement && !IsTouchOverUI())
+        if (!fingerMode)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            // Normal player-following mode
+            if (isTouching && !stopMovement && !IsTouchOverUI())
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            }
+        }
+        else
+        {
+            // In finger mode: tap directly on food
+            HandleFingerTapFood();
         }
 
-        // Handle sprite and movement reset after cooldown ends
         if (cooldownTimer > 0)
         {
             cooldownTimer -= Time.unscaledDeltaTime;
             if (cooldownTimer <= 0)
             {
-                if (spriteRenderer != null)
+                if (spriteRenderer != null && !fingerMode)
                     spriteRenderer.sprite = normalSprite;
 
                 stopMovement = false;
@@ -93,7 +98,6 @@ public class PlayerFollowTouch : MonoBehaviour
     void HandleInput()
     {
 #if UNITY_EDITOR
-        // In editor: use mouse input
         isTouching = Input.GetMouseButton(0);
         if (isTouching)
         {
@@ -102,7 +106,6 @@ public class PlayerFollowTouch : MonoBehaviour
             targetPosition = touchWorldPos;
         }
 #else
-        // On device: use touch input
         isTouching = Input.touchCount > 0;
         if (isTouching)
         {
@@ -113,9 +116,7 @@ public class PlayerFollowTouch : MonoBehaviour
         }
 #endif
 
-        // Hide UI buttons when user is touching (and not over a UI element)
         bool shouldHideButtons = isTouching && !IsTouchOverUI();
-
         foreach (GameObject button in uiButtonsToHide)
         {
             if (button != null)
@@ -123,7 +124,6 @@ public class PlayerFollowTouch : MonoBehaviour
         }
     }
 
-    // Check if the current touch is over a UI element
     private bool IsTouchOverUI()
     {
 #if UNITY_EDITOR
@@ -136,21 +136,33 @@ public class PlayerFollowTouch : MonoBehaviour
 #endif
     }
 
-    // Detect collision with food (enter or stay)
-    private void OnTriggerEnter2D(Collider2D other) => TryConsumeFood(other);
-    private void OnTriggerStay2D(Collider2D other) => TryConsumeFood(other);
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Finger"))
+        {
+            EnterFingerMode();
+            Destroy(other.gameObject);
+        }
+        else if (!fingerMode)
+        {
+            TryConsumeFood(other);
+        }
+    }
 
-    // Logic for eating food or bad food
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if (!fingerMode)
+            TryConsumeFood(other);
+    }
+
     private void TryConsumeFood(Collider2D other)
     {
-        // Skip if still in cooldown
         if (cooldownTimer > 0f) return;
 
         if (other.CompareTag("Food"))
         {
             Vector3 floatingPos = other.transform.position + Vector3.up * 0.5f;
 
-            // Destroy food and update player state
             Destroy(other.gameObject);
             cooldownTimer = eatCooldown;
             if (spriteRenderer != null)
@@ -160,17 +172,14 @@ public class PlayerFollowTouch : MonoBehaviour
             score++;
             UpdateScoreUI();
 
-            // Show floating visual effect
             if (floatingEffectPrefab != null)
                 Instantiate(floatingEffectPrefab, floatingPos, Quaternion.identity);
 
-            // Play squash and stretch animation
             StopAllCoroutines();
             StartCoroutine(SquashAndStretch());
         }
         else if (other.CompareTag("BadFood"))
         {
-            // Destroy bad food and stop movement
             Destroy(other.gameObject);
             cooldownTimer = badFoodCooldown;
             if (spriteRenderer != null)
@@ -178,50 +187,133 @@ public class PlayerFollowTouch : MonoBehaviour
 
             stopMovement = true;
 
-            // Play squash and stretch animation
+            StopAllCoroutines();
+            StartCoroutine(SquashAndStretch());
+        }
+        else if (other.CompareTag("Timer"))
+        {
+            Destroy(other.gameObject);
+            Time.timeScale = 0.5f;
+            Invoke("ResetTime", 4f);
+
+            cooldownTimer = eatCooldown;
+            if (spriteRenderer != null)
+                spriteRenderer.sprite = cooldownSprite;
+
+            stopMovement = false;
+
             StopAllCoroutines();
             StartCoroutine(SquashAndStretch());
         }
     }
 
-    // Update UI elements with current score values
+    void ResetTime() 
+    {
+        Time.timeScale = 1;
+    }
+
+
     private void UpdateScoreUI()
     {
         if (scoreText != null)
         {
             scoreText.text = "+" + score.ToString();
-
-            // Trigger score pop animation
             if (scoreAnimator != null)
                 scoreAnimator.Play("ScorePop", -1, 0f);
         }
 
         if (totalScoreText != null)
         {
-            // Calculate a "random" total score for visual effect
             int totalScore = score * Random.Range(77, 96);
             totalScoreText.text = "+" + totalScore.ToString();
 
-            // Trigger total score pop animation
             if (totalScoreAnimator != null)
                 totalScoreAnimator.Play("TotalScorePop", -1, 0f);
         }
     }
 
-    // Animate a squash and stretch effect for visual feedback
     private IEnumerator SquashAndStretch()
     {
         float duration = 0.1f;
-
-        // Squash the object
         transform.localScale = new Vector3(originalScale.x * 1.2f, originalScale.y * 0.8f, originalScale.z);
         yield return new WaitForSeconds(duration);
 
-        // Stretch the object
         transform.localScale = new Vector3(originalScale.x * 0.9f, originalScale.y * 1.1f, originalScale.z);
         yield return new WaitForSeconds(duration);
 
-        // Return to normal scale
         transform.localScale = originalScale;
     }
+
+    // ---------------- Finger Mode ----------------
+
+    private void EnterFingerMode()
+    {
+        fingerMode = true;
+
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = false; // Hide player sprite
+
+        // Start countdown to exit finger mode
+        StartCoroutine(FingerModeTimer(10f));
+
+        // Boost spawner during finger mode
+        FoodSpawner spawner = FindObjectOfType<FoodSpawner>();
+        if (spawner != null)
+        {
+            spawner.ActivateFingerBoost(10f);
+        }
+    }
+
+    private IEnumerator FingerModeTimer(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        // Exit finger mode after duration
+        fingerMode = false;
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = true; // Show player sprite again
+    }
+
+    private void HandleFingerTapFood()
+    {
+#if UNITY_EDITOR
+        if (Input.GetMouseButtonDown(0) && !IsTouchOverUI())
+        {
+            Vector3 touchWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            touchWorldPos.z = 0f;
+
+            RaycastHit2D hit = Physics2D.Raycast(touchWorldPos, Vector2.zero);
+            if (hit.collider != null && hit.collider.CompareTag("Food"))
+            {
+                TapConsumeFood(hit.collider.gameObject);
+            }
+        }
+#else
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !IsTouchOverUI())
+        {
+            Vector3 touchWorldPos = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
+            touchWorldPos.z = 0f;
+
+            RaycastHit2D hit = Physics2D.Raycast(touchWorldPos, Vector2.zero);
+            if (hit.collider != null && hit.collider.CompareTag("Food"))
+            {
+                TapConsumeFood(hit.collider.gameObject);
+            }
+        }
+#endif
+    }
+
+    private void TapConsumeFood(GameObject foodObj)
+    {
+        Vector3 floatingPos = foodObj.transform.position + Vector3.up * 0.5f;
+
+        Destroy(foodObj);
+        score++;
+        UpdateScoreUI();
+
+        if (floatingEffectPrefab != null)
+            Instantiate(floatingEffectPrefab, floatingPos, Quaternion.identity);
+    }
 }
+
+

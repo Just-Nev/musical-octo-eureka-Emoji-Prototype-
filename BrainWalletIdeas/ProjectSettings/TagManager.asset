@@ -6,6 +6,10 @@ TagManager:
   tags:
   - Food
   - BadFood
+  - Finger
+  - Timer
+  - Reverse
+  - Note
   layers:
   - Default
   - TransparentFX
@@ -13,8 +17,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - HitZone
+  - Note
   - 
   - 
   - 

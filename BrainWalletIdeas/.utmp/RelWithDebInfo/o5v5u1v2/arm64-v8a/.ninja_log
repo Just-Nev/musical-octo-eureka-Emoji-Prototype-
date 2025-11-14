@@ -1,0 +1,12 @@
+# ninja log v5
+79	442	7774993347737320	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	2a39f2dec9763a0d
+443	612	7774993349509474	D:/Unity Games/musical-octo-eureka-Emoji-Prototype-/BrainWalletIdeas/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/o5v5u1v2/obj/arm64-v8a/libswappywrapper.so	b70fd9cc672a5e1f
+39	1015	7774993353423846	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	7ec230da0ebe317a
+30	1017	7774993353494133	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	1c6b1361686b492e
+10	1029	7774993353650080	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	c55cd889254c61ad
+60	1055	7774993353916127	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	173f9aee7bbca5f7
+70	1104	7774993354411394	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	31d5b787751216b3
+21	1134	7774993354716939	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	a1d27bc33f1fd5f0
+50	1252	7774993355908629	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	4b5ca80d4154c381
+1	1336	7774993356751019	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	ffbed00ad05e8fbc
+1336	1420	7774993357634004	D:/Unity Games/musical-octo-eureka-Emoji-Prototype-/BrainWalletIdeas/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/o5v5u1v2/obj/arm64-v8a/libgame.so	da53f44d8d9d9162

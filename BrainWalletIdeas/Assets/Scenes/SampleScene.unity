@@ -435,14 +435,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c409ac6d674ec64489ab007f358211b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  foodPrefab: {fileID: 652361440054743006, guid: cccfb97166f997f4385cee877b2e54a1, type: 3}
-  badFoodPrefab: {fileID: 8264046496677169120, guid: 2dbaae3162a326043b158f2be53e71ee, type: 3}
+  spawnables:
+  - prefab: {fileID: 652361440054743006, guid: cccfb97166f997f4385cee877b2e54a1, type: 3}
+    spawnChance: 0.8
+    spawnOnlyOnce: 0
+    hasSpawned: 0
+  - prefab: {fileID: 8264046496677169120, guid: 2dbaae3162a326043b158f2be53e71ee, type: 3}
+    spawnChance: 0.2
+    spawnOnlyOnce: 0
+    hasSpawned: 0
+  - prefab: {fileID: 7650482081178919351, guid: d9facd40b4acd9e40ae0ab3319ec9e50, type: 3}
+    spawnChance: 0.1
+    spawnOnlyOnce: 1
+    hasSpawned: 0
+  - prefab: {fileID: 7650482081178919351, guid: d9facd40b4acd9e40ae0ab3319ec9e50, type: 3}
+    spawnChance: 0.1
+    spawnOnlyOnce: 1
+    hasSpawned: 0
+  - prefab: {fileID: 6975792707656208576, guid: 41bd8ed0456062b458606210ccd3d6fe, type: 3}
+    spawnChance: 0.1
+    spawnOnlyOnce: 0
+    hasSpawned: 0
+  - prefab: {fileID: 2395166278970333023, guid: 8b5d2ee65983ab54f8d768e59509cafe, type: 3}
+    spawnChance: 0.1
+    spawnOnlyOnce: 0
+    hasSpawned: 0
   spawnInterval: 0.8
   minSpawnInterval: 0.3
-  badFoodChance: 0.2
   fallSpeed: 3
   maxFallSpeed: 10
   difficultyRampTime: 60
+  boostedSpawnInterval: 0.1
 --- !u!1 &98001649
 GameObject:
   m_ObjectHideFlags: 0
@@ -965,7 +988,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 21.1, y: 97.1}
+  m_AnchoredPosition: {x: 15.7, y: 97.1}
   m_SizeDelta: {x: 989.7874, y: 297.4033}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &210891403
@@ -988,7 +1011,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Eaten:'
+  m_text: 'Combo:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7fd21899fad690e41bf1fa40f909296c, type: 2}
   m_sharedMaterial: {fileID: -1310298879236100460, guid: 7fd21899fad690e41bf1fa40f909296c, type: 2}
@@ -1015,8 +1038,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 70.4
-  m_fontSizeBase: 70.4
+  m_fontSize: 67.83
+  m_fontSizeBase: 67.83
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1598,7 +1621,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 1214.3}
+  m_AnchoredPosition: {x: 0, y: 1381.65}
   m_SizeDelta: {x: 1385.6907, y: 297.40332}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &478662930
@@ -4460,7 +4483,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &961952333
 Transform:
   m_ObjectHideFlags: 0
