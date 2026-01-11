@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class HitZone : MonoBehaviour
 {
@@ -7,14 +8,19 @@ public class HitZone : MonoBehaviour
     public float goodRange = 0.25f;
 
     [Header("Popup System")]
-    public GameObject popupPrefab; // prefab with SpriteRenderer + HitPopup.cs
+    public GameObject popupPrefab;
     public Transform popupSpawnPoint;
     public Sprite perfectSprite;
     public Sprite goodSprite;
     public Sprite badSprite;
 
     [Header("Touch Detection")]
-    public LayerMask hitZoneLayer; // assign HitZone layer
+    public LayerMask hitZoneLayer;
+
+    [Header("Hit Flash Objects (activate on hit)")]
+    public GameObject flashObject1;   // First object
+    public GameObject flashObject2;   // Second object
+    public float flashDuration = 0.1f;
 
     private GameObject noteInZone;
     private bool hasHitThisTap = false;
@@ -27,8 +33,8 @@ public class HitZone : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
             tapped = true;
 #else
-    if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
-        tapped = true;
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+            tapped = true;
 #endif
 
         if (tapped)
@@ -51,6 +57,9 @@ public class HitZone : MonoBehaviour
     {
         if (hasHitThisTap) return;
         hasHitThisTap = true;
+
+        //Activate flash objects
+        FlashObjects();
 
         if (noteInZone == null)
         {
@@ -81,7 +90,22 @@ public class HitZone : MonoBehaviour
         noteInZone = null;
     }
 
+    void FlashObjects()
+    {
+        if (flashObject1 != null) flashObject1.SetActive(true);
+        if (flashObject2 != null) flashObject2.SetActive(true);
 
+        StopCoroutine("FlashRoutine");
+        StartCoroutine("FlashRoutine");
+    }
+
+    IEnumerator FlashRoutine()
+    {
+        yield return new WaitForSeconds(flashDuration);
+
+        if (flashObject1 != null) flashObject1.SetActive(false);
+        if (flashObject2 != null) flashObject2.SetActive(false);
+    }
 
     void SpawnHitPopup(Sprite sprite)
     {
@@ -103,6 +127,9 @@ public class HitZone : MonoBehaviour
             noteInZone = null;
     }
 }
+
+
+
 
 
 
